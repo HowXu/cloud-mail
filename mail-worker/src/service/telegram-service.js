@@ -13,6 +13,7 @@ import emailTextTemplate from '../template/email-text';
 import emailHtmlTemplate from '../template/email-html';
 import verifyUtils from '../utils/verify-utils';
 import domainUtils from "../utils/domain-uitls";
+import storageService from './storage-service';
 
 const telegramService = {
 
@@ -29,6 +30,7 @@ const telegramService = {
 		const emailRow = await orm(c).select().from(email).where(eq(email.emailId, result.emailId)).get();
 
 		if (emailRow) {
+			await storageService.fillContentList(c.env, [emailRow]);
 
 			if (emailRow.content) {
 				const { r2Domain } = await settingService.query(c);

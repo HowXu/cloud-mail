@@ -7,6 +7,7 @@ import email from '../entity/email';
 import { isDel } from '../const/entity-const';
 import attService from "./att-service";
 import { t } from '../i18n/i18n'
+import storageService from './storage-service';
 const starService = {
 
 	async add(c, params, userId) {
@@ -72,6 +73,8 @@ const starService = {
 			const atts = attsList.filter(attsRow => attsRow.emailId === emailRow.emailId);
 			emailRow.attList = atts;
 		});
+
+		await storageService.fillContentList(c.env, list);
 
 		return { list };
 	},

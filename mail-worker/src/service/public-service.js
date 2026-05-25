@@ -14,6 +14,7 @@ import { isDel, roleConst } from '../const/entity-const';
 import email from '../entity/email';
 import userService from './user-service';
 import KvConst from '../const/kv-const';
+import storageService from './storage-service';
 
 const publicService = {
 
@@ -90,7 +91,11 @@ const publicService = {
 			query.orderBy(desc(email.emailId));
 		}
 
-		return query.limit(size).offset(num);
+		const list = await query.limit(size).offset(num);
+
+		await storageService.fillContentList(c.env, list);
+
+		return list;
 
 	},
 

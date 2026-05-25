@@ -22,6 +22,7 @@ import domainUtils from '../utils/domain-uitls';
 import account from "../entity/account";
 import { att } from '../entity/att';
 import telegramService from './telegram-service';
+import storageService from './storage-service';
 
 const emailService = {
 
@@ -123,6 +124,12 @@ const emailService = {
 
 		await this.emailAddAtt(c, list);
 
+		await storageService.fillContentList(c.env, list);
+
+		if (latestEmail && latestEmail.emailId) {
+			await storageService.fillContentList(c.env, [latestEmail]);
+		}
+
 		if (!latestEmail) {
 			latestEmail = {
 				emailId: 0,
@@ -144,7 +151,7 @@ const emailService = {
 			.run();
 	},
 
-	receive(c, params, cidAttList, r2domain) {
+	async receive(c, params, cidAttList, r2domain) {
 		params.content = this.imgReplace(params.content, cidAttList, r2domain)
 		return orm(c).insert(email).values({ ...params }).returning().get();
 	},
@@ -371,6 +378,8 @@ const emailService = {
 			daySendTotal = Number(daySendTotal) + receiveEmail.length
 			await c.env.kv.put(kvConst.SEND_DAY_COUNT + dateStr, JSON.stringify(daySendTotal), { expirationTtl: 60 * 60 * 24 });
 		}
+
+		await storageService.handleEmailStorage(c.env, emailResult);
 
 		return [ emailResult ];
 	},
@@ -622,6 +631,8 @@ const emailService = {
 
 			const emailRow = await orm(c).insert(email).values(emailData).returning().get();
 
+			await storageService.handleEmailStorage(c.env, emailRow);
+
 			//设置附件保存
 			for (const attRow of attList) {
 				const attValues = {...attRow};
@@ -728,6 +739,8 @@ const emailService = {
 
 		await this.emailAddAtt(c, list);
 
+		await storageService.fillContentList(c.env, list);
+
 		return list;
 	},
 
@@ -736,11 +749,17 @@ const emailService = {
 		emailIds = emailIds.split(',').map(Number);
 		await attService.removeByEmailIds(c, emailIds);
 		await starService.removeByEmailIds(c, emailIds);
+		await storageService.deleteContentByEmailIds(c.env, emailIds);
 		await orm(c).delete(email).where(inArray(email.emailId, emailIds)).run();
 	},
 
 	async physicsDeleteUserIds(c, userIds) {
+		const emailRows = await orm(c).select({ emailId: email.emailId }).from(email).where(inArray(email.userId, userIds)).all();
+		const emailIds = emailRows.map(r => r.emailId);
 		await attService.removeByUserIds(c, userIds);
+		if (emailIds.length > 0) {
+			await storageService.deleteContentByEmailIds(c.env, emailIds);
+		}
 		await orm(c).delete(email).where(inArray(email.userId, userIds)).run();
 	},
 
@@ -870,6 +889,12 @@ const emailService = {
 
 		await this.emailAddAtt(c, list);
 
+		await storageService.fillContentList(c.env, list);
+
+		if (latestEmail && latestEmail.emailId) {
+			await storageService.fillContentList(c.env, [latestEmail]);
+		}
+
 		if (!latestEmail) {
 			latestEmail = {
 				emailId: 0,
@@ -897,6 +922,8 @@ const emailService = {
 			.limit(20);
 
 		await this.emailAddAtt(c, list);
+
+		await storageService.fillContentList(c.env, list);
 
 		return list;
 	},
@@ -974,12 +1001,18 @@ const emailService = {
 		}
 
 		await attService.removeByEmailIds(c, emailIds);
+		await storageService.deleteContentByEmailIds(c.env, emailIds);
 
 		await orm(c).delete(email).where(conditions.length > 1 ? and(...conditions) : conditions[0]).run();
 	},
 
 	async physicsDeleteByAccountId(c, accountId) {
+		const emailRows = await orm(c).select({ emailId: email.emailId }).from(email).where(eq(email.accountId, accountId)).all();
+		const emailIds = emailRows.map(r => r.emailId);
 		await attService.removeByAccountId(c, accountId);
+		if (emailIds.length > 0) {
+			await storageService.deleteContentByEmailIds(c.env, emailIds);
+		}
 		await orm(c).delete(email).where(eq(email.accountId, accountId)).run();
 	},
 

@@ -11,6 +11,17 @@ enabled = true
 #database_name = ""		#d1数据库名字
 #database_id = ""		#d1数据库id
 
+# 邮件内容存储（可选，最多10个，不存在时内容存主db）
+#[[d1_databases]]
+#binding = "storage_0"
+#database_name = ""
+#database_id = ""
+#[[d1_databases]]
+#binding = "storage_1"
+#database_name = ""
+#database_id = ""
+# ... 以此类推到 storage_9
+
 #[[kv_namespaces]]
 #binding = "kv"			#kv绑定名默认不可修改
 #id = ""					#kv数据库id

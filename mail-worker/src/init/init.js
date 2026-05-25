@@ -30,6 +30,7 @@ const dbInit = {
 		await this.v2_9DB(c);
 		await this.v3_0DB(c);
 		await this.v3_1DB(c);
+		await this.v3_2DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
 	},
@@ -648,6 +649,64 @@ const dbInit = {
 		await c.env.db.batch(queryList);
 	},
 
+
+	async v3_2DB(c) {
+		try {
+			await c.env.db.prepare(`
+				CREATE TABLE IF NOT EXISTS index_storage (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					storage_key TEXT NOT NULL,
+					is_current INTEGER DEFAULT 0,
+					size_bytes INTEGER DEFAULT 0,
+					email_id_from INTEGER DEFAULT 0,
+					email_id_to INTEGER DEFAULT 0,
+					create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+				)
+			`).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
+
+		try {
+			await c.env.db.prepare(
+				'CREATE UNIQUE INDEX IF NOT EXISTS idx_index_storage_key ON index_storage(storage_key)'
+			).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
+
+		const storageKeys = [
+			'storage_0', 'storage_1', 'storage_2', 'storage_3', 'storage_4',
+			'storage_5', 'storage_6', 'storage_7', 'storage_8', 'storage_9'
+		];
+
+		for (const key of storageKeys) {
+			if (!c.env[key]) continue;
+
+			try {
+				await c.env[key].prepare(
+					'CREATE TABLE IF NOT EXISTS email_content (email_id INTEGER PRIMARY KEY, content TEXT, text TEXT)'
+				).run();
+
+				const existing = await c.env.db.prepare(
+					'SELECT id FROM index_storage WHERE storage_key = ?'
+				).bind(key).first();
+
+				if (existing) continue;
+
+				const hasCurrent = await c.env.db.prepare(
+					'SELECT id FROM index_storage WHERE is_current = 1'
+				).first();
+
+				await c.env.db.prepare(
+					'INSERT INTO index_storage (storage_key, is_current, size_bytes, email_id_from, email_id_to) VALUES (?, ?, 0, 0, 0)'
+				).bind(key, hasCurrent ? 0 : 1).run();
+
+			} catch (e) {
+				console.warn(`初始化 storage ${key} 失败：${e.message}`);
+			}
+		}
+	},
 
 	async initAccountName(c) {
 

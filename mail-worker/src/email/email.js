@@ -11,6 +11,7 @@ import roleService from '../service/role-service';
 import userService from '../service/user-service';
 import telegramService from '../service/telegram-service';
 import aiService from '../service/ai-service';
+import storageService from '../service/storage-service';
 
 export async function email(message, env, ctx) {
 
@@ -118,6 +119,15 @@ export async function email(message, env, ctx) {
 		const attachments = [];
 		const cidAttachments = [];
 
+		const encoder = new TextEncoder();
+		const incomingBytes = encoder.encode(email.html || '').length + encoder.encode(email.text || '').length;
+		try {
+			await storageService.ensureCapacity(env, incomingBytes);
+		} catch (e) {
+			message.setReject('Storage full');
+			return;
+		}
+
 		for (let item of email.attachments) {
 			let attachment = { ...item };
 			attachment.key = constant.ATTACHMENT_PREFIX + await fileUtils.getBuffHash(attachment.content) + fileUtils.getExtFileName(item.filename);
@@ -146,6 +156,7 @@ export async function email(message, env, ctx) {
 
 		emailRow = await emailService.completeReceive({ env }, account ? emailConst.status.RECEIVE : emailConst.status.NOONE, emailRow.emailId);
 
+		await storageService.handleEmailStorage(env, emailRow);
 
 		if (ruleType === settingConst.ruleType.RULE) {
 
