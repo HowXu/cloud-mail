@@ -81,6 +81,25 @@
             <div>{{ $t('deleted') }} <span class="deleted">{{ numberCount.delUserTotal }}</span></div>
           </div>
         </div>
+        <div class="number-item">
+          <div class="top">
+            <div class="left">
+              <div>{{ $t('emailStorage') }}</div>
+              <div>
+                <el-statistic :value="storageCount.usedMB + ' / ' + storageCount.totalCapacityMB + ' MB'" />
+              </div>
+            </div>
+            <div class="right">
+              <div class="count-icon">
+                <Icon icon="mdi:database" width="25" height="25"></Icon>
+              </div>
+            </div>
+          </div>
+          <div class="delete-ratio">
+            <div>{{ $t('stored') }} <span class="normal">{{ storageCount.contentCount }}</span></div>
+            <div>{{ $t('storages') }} <span class="deleted">{{ storageCount.totalStorage }}</span></div>
+          </div>
+        </div>
       </div>
       <div class="picture">
         <div class="picture-item">
@@ -153,7 +172,14 @@ const numberCount = reactive({
   delReceiveTotal: 0,
   delSendTotal: 0,
   delAccountTotal: 0,
-  delUserTotal: 0
+  delUserTotal: 0,
+})
+
+const storageCount = reactive({
+  usedMB: 0,
+  totalCapacityMB: 0,
+  contentCount: 0,
+  totalStorage: 0,
 })
 
 
@@ -210,19 +236,26 @@ let analysisDark = uiStore.dark
 onMounted(() => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  analysisEcharts(timeZone).then(data => {
-    receiveTotal.value = data.numberCount.receiveTotal
-    sendTotal.value = data.numberCount.sendTotal
-    accountTotal.value = data.numberCount.accountTotal
-    userTotal.value = data.numberCount.userTotal
-    numberCount.normalReceiveTotal = data.numberCount.normalReceiveTotal
-    numberCount.normalSendTotal = data.numberCount.normalSendTotal
-    numberCount.normalAccountTotal = data.numberCount.normalAccountTotal
-    numberCount.normalUserTotal = data.numberCount.normalUserTotal
-    numberCount.delReceiveTotal = data.numberCount.delReceiveTotal
-    numberCount.delSendTotal = data.numberCount.delSendTotal
-    numberCount.delAccountTotal = data.numberCount.delAccountTotal
-    numberCount.delUserTotal = data.numberCount.delUserTotal
+    analysisEcharts(timeZone).then(data => {
+      receiveTotal.value = data.numberCount.receiveTotal
+      sendTotal.value = data.numberCount.sendTotal
+      accountTotal.value = data.numberCount.accountTotal
+      userTotal.value = data.numberCount.userTotal
+      numberCount.normalReceiveTotal = data.numberCount.normalReceiveTotal
+      numberCount.normalSendTotal = data.numberCount.normalSendTotal
+      numberCount.normalAccountTotal = data.numberCount.normalAccountTotal
+      numberCount.normalUserTotal = data.numberCount.normalUserTotal
+      numberCount.delReceiveTotal = data.numberCount.delReceiveTotal
+      numberCount.delSendTotal = data.numberCount.delSendTotal
+      numberCount.delAccountTotal = data.numberCount.delAccountTotal
+      numberCount.delUserTotal = data.numberCount.delUserTotal
+
+      if (data.storageCount) {
+        storageCount.usedMB = data.storageCount.usedMB
+        storageCount.totalCapacityMB = data.storageCount.totalCapacityMB
+        storageCount.contentCount = data.storageCount.contentCount
+        storageCount.totalStorage = data.storageCount.totalStorage
+      }
     senderData.value = data.receiveRatio.nameRatio.map(item => {
       return {
         name: item.name || ' ',
@@ -766,8 +799,12 @@ function createSendGauge() {
 
   .number {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     gap: 20px;
+    @media (max-width: 1600px) {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+    }
     @media (max-width: 1366px) {
       grid-template-columns: 1fr 1fr;
       gap: 15px;

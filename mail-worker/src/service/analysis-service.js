@@ -6,6 +6,7 @@ import { emailConst } from '../const/entity-const';
 import kvConst from '../const/kv-const';
 import dayjs from 'dayjs';
 import { toUtc } from '../utils/date-uitil';
+import storageService from './storage-service';
 const analysisService = {
 
 	async echarts(c, params) {
@@ -62,7 +63,8 @@ const analysisService = {
 			userDayCountRaw,
 			receiveDayCountRaw,
 			sendDayCountRaw,
-			daySendTotalRaw
+			daySendTotalRaw,
+			storageCount
 		] = await Promise.all([
 			analysisDao.numberCount(c),
 
@@ -80,6 +82,7 @@ const analysisService = {
 			analysisDao.sendDayCount(c, diffHours),
 
 			c.env.kv.get(kvConst.SEND_DAY_COUNT + dayjs().format('YYYY-MM-DD')),
+			this.storageCount(c),
 		]);
 
 
@@ -99,8 +102,53 @@ const analysisService = {
 				receiveDayCount,
 				sendDayCount
 			},
-			daySendTotal: Number(daySendTotal)
+			daySendTotal: Number(daySendTotal),
+			storageCount
 		};
+	},
+
+	async storageCount(c) {
+		try {
+			const indexRow = await c.env.db.prepare(
+				'SELECT COUNT(*) as totalStorage, COALESCE(SUM(size_bytes), 0) as usedBytes FROM index_storage'
+			).first();
+
+			const currentRow = await c.env.db.prepare(
+				'SELECT storage_key FROM index_storage WHERE is_current = 1'
+			).first();
+
+			let contentCount = 0;
+			if (indexRow && indexRow.totalStorage > 0) {
+				const storageRows = await c.env.db.prepare(
+					'SELECT storage_key FROM index_storage'
+				).all();
+
+				for (const row of (storageRows?.results || [])) {
+					const db = c.env[row.storage_key];
+					if (!db) continue;
+					try {
+						const r = await db.prepare('SELECT COUNT(*) as cnt FROM email_content').first();
+						if (r) contentCount += r.cnt;
+					} catch (e) {
+						// storage 表可能还不存在
+					}
+				}
+			}
+
+			const totalCapacity = (indexRow?.totalStorage || 0) * 498;
+			const usedMB = ((indexRow?.usedBytes || 0) / (1024 * 1024)).toFixed(1);
+
+			return {
+				totalStorage: indexRow?.totalStorage || 0,
+				usedMB: Number(usedMB),
+				totalCapacityMB: totalCapacity,
+				contentCount,
+				currentStorageKey: currentRow?.storage_key || null
+			};
+		} catch (e) {
+			console.error('storageCount error:', e);
+			return { totalStorage: 0, usedMB: 0, totalCapacityMB: 0, contentCount: 0, currentStorageKey: null };
+		}
 	},
 
 	filterEmptyDay(data, timeZone) {
