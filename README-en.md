@@ -1,3 +1,10 @@
+## Fork Notes
+
+> This project is forked from [maillab/cloud-mail](https://github.com/maillab/cloud-mail), with the following additions:
+
+- **Multi-D1 Storage**: Breaks through Cloudflare D1's 500MB per-database limit by supporting up to 10 storage instances (`storage_0` ~ `storage_9`). Email content is automatically sharded and stored, with automatic failover when capacity is reached.
+- **Storage Metrics Dashboard**: Admin analytics page now includes a storage metrics card showing used/total capacity, stored email count, and active storage instances.
+
 <p align="center">
     <img src="doc/demo/logo.png" width="80px" />
     <h1 align="center">Cloud Mail</h1>

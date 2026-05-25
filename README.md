@@ -1,3 +1,10 @@
+## Fork 说明
+
+> 本项目 Fork 自 [maillab/cloud-mail](https://github.com/maillab/cloud-mail)，在原项目基础上新增了以下功能：
+
+- **多 D1 存储支持**：突破 Cloudflare D1 单库 500MB 限制，支持配置最多 10 个存储实例（`storage_0` ~ `storage_9`），邮件内容自动分片存储，达到容量上限自动切换。
+- **存储容量监控**：管理员面板新增存储指标卡片，实时查看已用/总容量、已存储邮件数、存储实例数。
+
 <p align="center">
     <img src="doc/demo/logo.png" width="80px" />
     <h1 align="center">Cloud Mail</h1>
