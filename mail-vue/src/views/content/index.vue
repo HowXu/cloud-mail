@@ -141,6 +141,18 @@ function openReply() {
   composeStore.subject = formSubject(email)
   composeStore.sendType = 'reply'
   composeStore.emailId = email.emailId
+  email.subject = email.subject || ''
+  composeStore.content = `
+    <div></div>
+    <div>
+    <br>
+        ${formatDetailDate(email.createTime)} ${email.name} &lt${email.sendEmail}&gt ${t('wrote')}:
+    </div>
+    <blockquote class="mceNonEditable" style="margin: 0 0 0 0.8ex;border-left: 1px solid rgb(204,204,204);padding-left: 1ex;">
+      <articl>
+          ${formatImage(email.content) || `<pre style="font-family: inherit;word-break: break-word;white-space: pre-wrap;margin: 0">${email.text}</pre>`}
+      </article>
+    </blockquote>`
   router.push('/compose')
 }
 
@@ -152,6 +164,7 @@ function openReplyNoQuote() {
   composeStore.subject = formSubject(email)
   composeStore.sendType = 'reply'
   composeStore.emailId = email.emailId
+  composeStore.content = ''
   router.push('/compose')
 }
 
@@ -161,6 +174,10 @@ function openForward() {
   composeStore.setBackReply({ receiveEmail: [], subject: formSubject(email), content: '', sendType: 'forward' })
   composeStore.subject = formSubject(email)
   composeStore.sendType = 'forward'
+  email.subject = email.subject || ''
+  composeStore.content = `
+      ${formatImage(email.content) || `<pre style="font-family: inherit;word-break: break-word;white-space: pre-wrap;margin: 0">${email.text}</pre>`}
+    `
   router.push('/compose')
 }
 

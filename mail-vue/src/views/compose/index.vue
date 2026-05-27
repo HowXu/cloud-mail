@@ -455,8 +455,8 @@ function initFromStore() {
   form.emailId = composeStore.emailId
   form.attachments = composeStore.attachments || []
   form.draftId = composeStore.draftId
-  if (composeStore.backReply.content) {
-    backReply.content = composeStore.backReply.content
+  if (composeStore.backReply.sendType) {
+    backReply.content = composeStore.backReply.content || ''
     backReply.subject = composeStore.backReply.subject
     backReply.receiveEmail = composeStore.backReply.receiveEmail
     backReply.sendType = composeStore.backReply.sendType
