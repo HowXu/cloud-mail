@@ -12,10 +12,10 @@
         </div>
         <div class="title-actions">
           <el-tooltip :content="$t('openInNewTab')" placement="bottom">
-            <Icon icon="material-symbols:open-in-new-rounded" width="22" height="22" class="action-icon" @click="openInNewTab"/>
+            <Icon icon="material-symbols:open-in-new-rounded" width="20" height="20" class="action-icon" @click="openInNewTab"/>
           </el-tooltip>
           <el-tooltip :content="$t('back')" placement="bottom">
-            <Icon icon="material-symbols-light:close-rounded" width="22" height="22" class="action-icon" @click="close"/>
+            <Icon icon="material-symbols-light:close-rounded" width="20" height="20" class="action-icon" @click="close"/>
           </el-tooltip>
         </div>
       </div>
@@ -768,15 +768,11 @@ defineExpose({
 
       .title-actions {
         display: flex;
-        gap: 12px;
+        align-items: center;
+        gap: 20px;
+        font-size: 18px;
         .action-icon {
           cursor: pointer;
-          padding: 8px;
-          border-radius: 6px;
-          transition: background 0.2s;
-          &:hover {
-            background: var(--el-fill-color-light);
-          }
         }
       }
 
