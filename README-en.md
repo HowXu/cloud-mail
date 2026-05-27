@@ -2,8 +2,23 @@
 
 > This project is forked from [maillab/cloud-mail](https://github.com/maillab/cloud-mail), with the following additions:
 
+### New Features
+
 - **Multi-D1 Storage**: Breaks through Cloudflare D1's 500MB per-database limit by supporting up to 10 storage instances (`storage_0` ~ `storage_9`). Email content is automatically sharded and stored, with automatic failover when capacity is reached.
 - **Storage Metrics Dashboard**: Admin analytics page now includes a storage metrics card showing used/total capacity, stored email count, and active storage instances.
+- **Auto Cleanup on Email Delete**: Automatically checks and removes attachments from R2/S3 storage when deleting emails.
+- **Quick Reply**: New quick reply option without quoted content, directly reply to sender with auto-generated subject.
+- **Email Editor Refactor**: Migrated from overlay to dedicated /compose page with multi-tab editing support.
+- **Login Background Customization**: Support for customizing login background darkening factor.
+
+### Improvements
+
+- **Reply/Forward Content Protection**: Fixed content loss when routing to compose page from message view.
+- **Email List Query Optimization**: Reduced query size to 25 items per request for faster loading.
+- **Editor Layout Improvements**: Full-width display, no side margins, larger buttons, better mobile experience.
+- **Quick Reply Enhancements**: Fixed bottom-load trigger, auto subject generation, improved icons and tooltips.
+- **Post-Send Navigation Fix**: Correctly redirects to inbox after sending from message view.
+- **Button Style Consistency**: Matched button styles with message page header.
 
 <p align="center">
     <img src="doc/demo/logo.png" width="80px" />
