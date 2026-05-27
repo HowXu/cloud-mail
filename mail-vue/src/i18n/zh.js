@@ -195,6 +195,7 @@ const zh = {
     changeUserName: '修改用户名',
     send: '发送',
     reply: '回复',
+    replyNoQuote: '快速回复',
     forward: '转发',
     confirm: '确定',
     cancel: '取消',

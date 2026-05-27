@@ -103,20 +103,6 @@
       </div>
       <div class="picture">
         <div class="picture-item">
-          <div class="title" style="display: flex;justify-content: space-between;">
-            <span>{{ $t('emailSource') }}</span>
-            <span class="source-button" v-if="false">
-              <el-radio-group v-model="checkedSourceType">
-                <el-radio-button label="发件人" value="sender"/>
-                <el-radio-button label="邮箱" value="email"/>
-              </el-radio-group>
-            </span>
-          </div>
-          <div class="sender-pie">
-
-          </div>
-        </div>
-        <div class="picture-item">
           <div class="title">{{ $t('userGrowth') }}</div>
           <div class="increase-line">
 
@@ -890,11 +876,8 @@ function createSendGauge() {
 
   .picture {
     display: grid;
-    grid-template-columns: 500px 1fr;
+    grid-template-columns: 1fr;
     gap: 20px;
-    @media (max-width: 1620px) {
-      grid-template-columns: 1fr;
-    }
     @media (max-width: 1024px) {
       gap: 15px;
     }

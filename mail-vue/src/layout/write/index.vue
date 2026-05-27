@@ -118,6 +118,7 @@ import {ElMessageBox} from "element-plus";
 defineExpose({
   open,
   openReply,
+  openReplyNoQuote,
   openForward,
   openDraft
 })
@@ -488,6 +489,43 @@ function openReply(email) {
           ${formatImage(email.content) || `<pre style="font-family: inherit;word-break: break-word;white-space: pre-wrap;margin: 0">${email.text}</pre>`}
       </article>
     </blockquote>`
+    open()
+
+    nextTick(() => {
+      backReply.content = editor.value.getContent()
+      backReply.subject = form.subject
+      backReply.receiveEmail = form.receiveEmail
+      backReply.sendType = form.sendType
+    })
+  })
+
+}
+
+function openReplyNoQuote(email) {
+
+  resetForm();
+
+  email.subject = email.subject || ''
+
+  form.receiveEmail.push(email.sendEmail)
+
+  const isRe = email.subject.startsWith('Re:') ||
+      email.subject.startsWith('Re：') ||
+      email.subject.startsWith('回复：') ||
+      email.subject.startsWith('回复:')
+
+  if (isRe) {
+    form.subject = email.name ? email.name : ''
+  } else {
+    form.subject = 'Re: ' + email.subject
+  }
+
+  form.sendType = 'reply'
+  form.emailId = email.emailId
+
+  defValue.value = ''
+
+  setTimeout(() => {
     open()
 
     nextTick(() => {

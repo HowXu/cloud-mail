@@ -8,6 +8,7 @@
         <Icon class="icon" @click="changeStar" v-else icon="solar:star-line-duotone" width="18" height="18"/>
       </span>
       <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReply" icon="la:reply" width="21" height="21" />
+      <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReplyNoQuote" icon="ph:arrow-bend-up-left-bold" width="20" height="20" />
       <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openForward" icon="iconoir:arrow-up-right" width="20" height="20" />
     </div>
     <div></div>
@@ -120,6 +121,10 @@ onUnmounted(() => {
 
 function openReply() {
   uiStore.writerRef.openReply(email)
+}
+
+function openReplyNoQuote() {
+  uiStore.writerRef.openReplyNoQuote(email)
 }
 
 function openForward() {

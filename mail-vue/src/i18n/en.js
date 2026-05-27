@@ -195,6 +195,7 @@ const en = {
     changeUserName: 'Change Username',
     send: 'Send',
     reply: 'Reply',
+    replyNoQuote: 'Quick Reply',
     forward: 'Forward',
     confirm: 'Confirm',
     cancel: 'Cancel',

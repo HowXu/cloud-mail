@@ -179,6 +179,14 @@
               </div>
             </template>
           </el-dropdown-item>
+          <el-dropdown-item v-if="['email','star'].includes(props.type)" @click="openReplyNoQuote(rightClickEmail)">
+            <template #default>
+              <div class="right-dropdown-item">
+                <Icon icon="ph:arrow-bend-up-left-bold" width="20" height="20"  />
+                <span>{{t('replyNoQuote')}}</span>
+              </div>
+            </template>
+          </el-dropdown-item>
           <el-dropdown-item v-if="['email','send', 'star'].includes(props.type)" @click="openForward(rightClickEmail)">
             <template #default>
               <div class="right-dropdown-item">
@@ -488,6 +496,10 @@ window.addEventListener('wheel', (event) => {
 
 function openReply(email) {
   uiStore.writerRef.openReply(email)
+}
+
+function openReplyNoQuote(email) {
+  uiStore.writerRef.openReplyNoQuote(email)
 }
 
 function openForward(email) {

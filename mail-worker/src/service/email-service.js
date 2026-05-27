@@ -23,6 +23,7 @@ import account from "../entity/account";
 import { att } from '../entity/att';
 import telegramService from './telegram-service';
 import storageService from './storage-service';
+import r2Service from './r2-service';
 
 const emailService = {
 
@@ -36,8 +37,8 @@ const emailService = {
 		accountId = Number(accountId);
 		allReceive = Number(allReceive);
 
-		if (size > 50) {
-			size = 50;
+		if (size > 35) {
+			size = 35;
 		}
 
 		if (!emailId) {
@@ -144,6 +145,16 @@ const emailService = {
 	async delete(c, params, userId) {
 		const { emailIds } = params;
 		const emailIdList = emailIds.split(',').map(Number);
+
+		const attList = await attService.selectByEmailIds(c, emailIdList);
+		if (attList.length > 0) {
+			const storageType = await r2Service.storageType(c);
+			if (storageType === 'R2' || storageType === 'S3') {
+				const keys = attList.map(att => att.key);
+				await attService.batchDelete(c, keys);
+			}
+		}
+
 		await orm(c).update(email).set({ isDel: isDel.DELETE }).where(
 			and(
 				eq(email.userId, userId),
@@ -797,8 +808,8 @@ const emailService = {
 		emailId = Number(emailId);
 		timeSort = Number(timeSort);
 
-		if (size > 50) {
-			size = 50;
+		if (size > 35) {
+			size = 35;
 		}
 
 		if (!emailId) {
