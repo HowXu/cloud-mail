@@ -6,29 +6,37 @@ keep_vars = true
 [observability]
 enabled = true
 
-#[[d1_databases]]
-#binding = "db"			#d1数据库绑定名默认不可修改
-#database_name = ""		#d1数据库名字
-#database_id = ""		#d1数据库id
+[[d1_databases]]
+binding = "db"			#d1数据库绑定名默认不可修改
+database_name = "cloud-mail"		#d1数据库名字
+database_id = "727ae336-b870-482d-bb18-a247bbd65fa4"		#d1数据库id
 
 # 邮件内容存储（可选，最多10个，不存在时内容存主db）
-#[[d1_databases]]
-#binding = "storage_0"
-#database_name = ""
-#database_id = ""
-#[[d1_databases]]
-#binding = "storage_1"
-#database_name = ""
-#database_id = ""
+[[d1_databases]]
+binding = "storage_0"
+database_name = "mail_storage_0"
+database_id = "f313217c-139c-4d6f-b233-a4095ca0d85e"
+[[d1_databases]]
+binding = "storage_1"
+database_name = "mail_storage_1"
+database_id = "89fb9d72-3ddf-4aa5-b2d0-8865469d28d1"
+[[d1_databases]]
+binding = "storage_2"
+database_name = "mail_storage_2"
+database_id = "59a2bf39-b2b6-4767-9566-e48dcf4f1cee"
+[[d1_databases]]
+binding = "storage_3"
+database_name = "mail_storage_3"
+database_id = "9ff16ea1-e269-4295-8992-b5d0d0e8d58d"
 # ... 以此类推到 storage_9
 
-#[[kv_namespaces]]
-#binding = "kv"			#kv绑定名默认不可修改
-#id = ""					#kv数据库id
+[[kv_namespaces]]
+binding = "kv"			#kv绑定名默认不可修改
+id = "c68ec705a2b84d2ba1a9e5dba44cb6f0"					#kv数据库id
 
-#[[r2_buckets]]
-#binding = "r2"			#r2对象存储绑定名默认不可修改
-#bucket_name = ""		#r2对象存储桶的名字
+[[r2_buckets]]
+binding = "r2"			#r2对象存储绑定名默认不可修改
+bucket_name = "cloud-mail"		#r2对象存储桶的名字
 
 #[[send_email]]
 #name = "email"			#CF发件, 配置后优先使用
