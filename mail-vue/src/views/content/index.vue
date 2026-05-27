@@ -103,11 +103,15 @@ import {allEmailDelete} from "@/request/all-email.js";
 import {useUiStore} from "@/store/ui.js";
 import {useI18n} from "vue-i18n";
 import {EmailUnreadEnum} from "@/enums/email-enum.js";
+import {useComposeStore} from "@/store/compose.js";
+import {useRoute} from "vue-router";
 
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 const accountStore = useAccountStore();
 const emailStore = useEmailStore();
+const composeStore = useComposeStore();
+const route = useRoute();
 const router = useRouter()
 const email = emailStore.contentData.email
 const showPreview = ref(false)
@@ -130,15 +134,43 @@ onUnmounted(() => {
 })
 
 function openReply() {
-  uiStore.writerRef.openReply(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [email.sendEmail], subject: formSubject(email), content: '', sendType: 'reply' })
+  composeStore.receiveEmail = [email.sendEmail]
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'reply'
+  composeStore.emailId = email.emailId
+  router.push('/compose')
 }
 
 function openReplyNoQuote() {
-  uiStore.writerRef.openReplyNoQuote(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [email.sendEmail], subject: formSubject(email), content: '', sendType: 'reply' })
+  composeStore.receiveEmail = [email.sendEmail]
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'reply'
+  composeStore.emailId = email.emailId
+  router.push('/compose')
 }
 
 function openForward() {
-  uiStore.writerRef.openForward(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [], subject: formSubject(email), content: '', sendType: 'forward' })
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'forward'
+  router.push('/compose')
+}
+
+function formSubject(email) {
+  email.subject = email.subject || ''
+  if (email.subject.startsWith('Re:') || email.subject.startsWith('Re：') ||
+      email.subject.startsWith('回复：') || email.subject.startsWith('回复:')) {
+    return email.subject
+  }
+  return 'Re: ' + email.subject
 }
 
 function toMessage(message) {

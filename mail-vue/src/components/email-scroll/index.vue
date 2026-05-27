@@ -245,9 +245,11 @@
 import {Icon} from "@iconify/vue";
 import skeletonBlock from "@/components/email-scroll/skeleton/index.vue"
 import {computed, onActivated, reactive, ref, watch, nextTick, onMounted, onUnmounted } from "vue";
+import {useRoute, useRouter} from "vue-router";
 import {useEmailStore} from "@/store/email.js";
 import {useUiStore} from "@/store/ui.js";
 import {useSettingStore} from "@/store/setting.js";
+import {useComposeStore} from "@/store/compose.js";
 import {sleep} from "@/utils/time-utils.js"
 import {fromNow} from "@/utils/day.js";
 import {useI18n} from "vue-i18n";
@@ -310,6 +312,9 @@ const {t} = useI18n()
 const settingStore = useSettingStore()
 const uiStore = useUiStore();
 const emailStore = useEmailStore();
+const composeStore = useComposeStore();
+const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
 const followLoading = ref(false);
 const noLoading = ref(false);
@@ -495,15 +500,43 @@ window.addEventListener('wheel', (event) => {
 })
 
 function openReply(email) {
-  uiStore.writerRef.openReply(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [email.sendEmail], subject: formSubject(email), content: '', sendType: 'reply' })
+  composeStore.receiveEmail = [email.sendEmail]
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'reply'
+  composeStore.emailId = email.emailId
+  router.push('/compose')
 }
 
 function openReplyNoQuote(email) {
-  uiStore.writerRef.openReplyNoQuote(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [email.sendEmail], subject: formSubject(email), content: '', sendType: 'reply' })
+  composeStore.receiveEmail = [email.sendEmail]
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'reply'
+  composeStore.emailId = email.emailId
+  router.push('/compose')
 }
 
 function openForward(email) {
-  uiStore.writerRef.openForward(email)
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setBackReply({ receiveEmail: [], subject: formSubject(email), content: '', sendType: 'forward' })
+  composeStore.subject = formSubject(email)
+  composeStore.sendType = 'forward'
+  router.push('/compose')
+}
+
+function formSubject(email) {
+  email.subject = email.subject || ''
+  if (email.subject.startsWith('Re:') || email.subject.startsWith('Re：') ||
+      email.subject.startsWith('回复：') || email.subject.startsWith('回复:')) {
+    return email.subject
+  }
+  return 'Re: ' + email.subject
 }
 
 function visibleChange(e) {

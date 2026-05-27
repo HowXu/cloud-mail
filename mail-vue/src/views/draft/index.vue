@@ -29,6 +29,8 @@ import {starAdd, starCancel} from "@/request/star.js";
 import {defineOptions, ref, watch, toRaw} from "vue";
 import {useUiStore} from "@/store/ui.js";
 import {userDraftStore} from "@/store/draft.js";
+import {useComposeStore} from "@/store/compose.js";
+import {useRoute, useRouter} from "vue-router";
 import db from "@/db/db.js"
 
 defineOptions({
@@ -37,6 +39,9 @@ defineOptions({
 
 const draftStore = userDraftStore();
 const uiStore = useUiStore();
+const composeStore = useComposeStore();
+const route = useRoute();
+const router = useRouter();
 const scroll = ref({})
 
 watch(() => draftStore.setDraft, async () => {
@@ -85,7 +90,10 @@ async function deleteDraft(draftIds) {
 async function jumpContent(email) {
   const att = await db.value.att.get(email.draftId)
   email.attachments = att.attachments
-  uiStore.writerRef.openDraft(email);
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  composeStore.setForm(toRaw(email))
+  router.push('/compose')
 }
 
 </script>

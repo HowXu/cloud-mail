@@ -10,15 +10,12 @@
         @click="uiStore.asideShow = false"
     ></div>
     <el-container class="main-container">
-      <el-main>
-        <el-header>
-            <Header />
-        </el-header>
-        <Main />
-      </el-main>
+      <el-header>
+          <Header />
+      </el-header>
+      <Main />
     </el-container>
   </el-container>
-  <writer ref="writerRef" />
 </template>
 
 <script setup>
@@ -27,10 +24,8 @@ import Header from '@/layout/header/index.vue'
 import Main from '@/layout/main/index.vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {useUiStore} from "@/store/ui.js";
-import writer from '@/layout/write/index.vue'
 
 const uiStore = useUiStore();
-const writerRef = ref({})
 const isMobile = ref(window.innerWidth < 1025)
 const handleResize = () => {
   isMobile.value = window.innerWidth < 1025
@@ -38,10 +33,12 @@ const handleResize = () => {
 }
 
 onMounted(() => {
-  uiStore.writerRef = writerRef
-
   window.addEventListener('resize', handleResize)
   handleResize()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {

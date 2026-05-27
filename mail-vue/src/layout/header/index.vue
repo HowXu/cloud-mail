@@ -74,6 +74,7 @@
 
 <script setup>
 import router from "@/router";
+import {useComposeStore} from "@/store/compose.js";
 import hanburger from '@/components/hamburger/index.vue'
 import {logout} from "@/request/login.js";
 import {Icon} from "@iconify/vue";
@@ -91,6 +92,7 @@ const route = useRoute();
 const settingStore = useSettingStore();
 const userStore = useUserStore();
 const uiStore = useUiStore();
+const composeStore = useComposeStore();
 const logoutLoading = ref(false)
 const userInfoShow = ref(false)
 const userinfoRef = ref({})
@@ -233,7 +235,9 @@ function switchDark(nextIsDark, root) {
 }
 
 function openSend() {
-  uiStore.writerRef.open()
+  composeStore.initFromAccount()
+  composeStore.setFromPath(route.path)
+  router.push('/compose')
 }
 
 function changeAside() {
