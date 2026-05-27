@@ -726,24 +726,29 @@ defineExpose({
   justify-content: center;
   padding: 15px;
   box-sizing: border-box;
+  @media (min-width: 1025px) {
+    padding: 0;
+  }
 
   .write-box {
     background: var(--el-bg-color);
     width: 100%;
+    height: 100%;
     max-width: 1367px;
-    height: min(800px, calc(100vh - 60px));
     box-shadow: var(--el-box-shadow-light);
     border: 1px solid var(--el-border-color-light);
     transition: var(--el-transition-duration);
     padding: 15px;
-    border-radius: 8px;
     display: grid;
     grid-template-rows: auto 1fr;
     overflow: hidden;
 
+    @media (min-width: 1025px) {
+      border-radius: 8px;
+    }
+
     @media (max-width: 1024px) {
       max-width: 100%;
-      height: 100%;
       border-radius: 0;
       border: 0;
       padding-top: 10px;
@@ -762,11 +767,11 @@ defineExpose({
 
       .title-actions {
         display: flex;
-        gap: 8px;
+        gap: 12px;
         .action-icon {
           cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
+          padding: 8px;
+          border-radius: 6px;
           transition: background 0.2s;
           &:hover {
             background: var(--el-fill-color-light);
