@@ -196,6 +196,7 @@ const en = {
     send: 'Send',
     reply: 'Reply',
     replyNoQuote: 'Quick Reply',
+    cancelStar: 'Unstar',
     forward: 'Forward',
     confirm: 'Confirm',
     cancel: 'Cancel',

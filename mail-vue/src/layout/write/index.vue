@@ -515,7 +515,7 @@ function openReplyNoQuote(email) {
       email.subject.startsWith('回复:')
 
   if (isRe) {
-    form.subject = email.name ? email.name : ''
+    form.subject = email.name ? 'Re: ' + email.name : 'Re: '
   } else {
     form.subject = 'Re: ' + email.subject
   }

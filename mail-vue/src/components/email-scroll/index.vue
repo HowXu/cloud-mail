@@ -182,7 +182,7 @@
           <el-dropdown-item v-if="['email','star'].includes(props.type)" @click="openReplyNoQuote(rightClickEmail)">
             <template #default>
               <div class="right-dropdown-item">
-                <Icon icon="ph:arrow-bend-up-left-bold" width="20" height="20"  />
+                <Icon icon="mdi:reply-all-outline" width="20" height="20"  />
                 <span>{{t('replyNoQuote')}}</span>
               </div>
             </template>
@@ -348,7 +348,7 @@ const triggerRef = ref({
 })
 
 const queryParam = reactive({
-  size: 50
+  size: 35
 });
 
 defineExpose({

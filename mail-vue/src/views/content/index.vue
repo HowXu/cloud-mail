@@ -2,14 +2,24 @@
   <div class="box">
     <div class="header-actions">
       <Icon class="icon" icon="material-symbols-light:arrow-back-ios-new" width="20" height="20" @click="handleBack"/>
-      <Icon v-perm="'email:delete'" class="icon" icon="uiw:delete" width="16" height="16" @click="handleDelete"/>
+      <el-tooltip :content="t('delete')" placement="bottom">
+        <Icon v-perm="'email:delete'" class="icon" icon="uiw:delete" width="16" height="16" @click="handleDelete"/>
+      </el-tooltip>
       <span class="star" v-if="emailStore.contentData.showStar">
-        <Icon class="icon" @click="changeStar" v-if="email.isStar" icon="fluent-color:star-16" width="20" height="20"/>
-        <Icon class="icon" @click="changeStar" v-else icon="solar:star-line-duotone" width="18" height="18"/>
+        <el-tooltip :content="email.isStar ? t('cancelStar') : t('star')" placement="bottom">
+          <Icon class="icon" @click="changeStar" v-if="email.isStar" icon="fluent-color:star-16" width="20" height="20"/>
+          <Icon class="icon" @click="changeStar" v-else icon="solar:star-line-duotone" width="18" height="18"/>
+        </el-tooltip>
       </span>
-      <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReply" icon="la:reply" width="21" height="21" />
-      <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReplyNoQuote" icon="ph:arrow-bend-up-left-bold" width="20" height="20" />
-      <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openForward" icon="iconoir:arrow-up-right" width="20" height="20" />
+      <el-tooltip :content="t('reply')" placement="bottom">
+        <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReply" icon="la:reply" width="21" height="21" />
+      </el-tooltip>
+      <el-tooltip :content="t('replyNoQuote')" placement="bottom">
+        <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openReplyNoQuote" icon="mdi:reply-all-outline" width="22" height="22" />
+      </el-tooltip>
+      <el-tooltip :content="t('forward')" placement="bottom">
+        <Icon class="icon" v-if="emailStore.contentData.showReply" v-perm="'email:send'"  @click="openForward" icon="iconoir:arrow-up-right" width="20" height="20" />
+      </el-tooltip>
     </div>
     <div></div>
     <el-scrollbar class="scrollbar">

@@ -196,6 +196,7 @@ const zh = {
     send: '发送',
     reply: '回复',
     replyNoQuote: '快速回复',
+    cancelStar: '取消星标',
     forward: '转发',
     confirm: '确定',
     cancel: '取消',
