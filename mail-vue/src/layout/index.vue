@@ -84,6 +84,7 @@ onBeforeUnmount(() => {
   top: 0;
   left: 0;
   overflow: hidden;
+  z-index: 1;
 }
 
 .main-container {
@@ -91,6 +92,8 @@ onBeforeUnmount(() => {
   background: var(--el-bg-color);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
 }
 
 .el-main {

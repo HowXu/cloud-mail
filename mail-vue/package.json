@@ -23,6 +23,7 @@
     "element-plus": "^2.13.1",
     "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
+    "particles.js": "^2.0.0",
     "path": "^0.12.7",
     "pinia": "^3.0.2",
     "pinia-plugin-persistedstate": "^4.2.0",
