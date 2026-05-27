@@ -382,7 +382,8 @@ async function sendEmail() {
     }
 
     resetForm();
-    router.push(fromPath)
+    const targetPath = fromPath === '/message' ? '/inbox' : fromPath
+    router.push(targetPath)
   }).catch((e) => {
     ElNotification({
       title: t('sendFailMsg'),
