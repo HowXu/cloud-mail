@@ -725,33 +725,19 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 15px;
+  padding: 0;
   box-sizing: border-box;
-  @media (min-width: 1025px) {
-    padding: 0;
-  }
 
   .write-box {
     background: var(--el-bg-color);
     width: 100%;
     height: 100%;
-    max-width: 1367px;
-    box-shadow: var(--el-box-shadow-light);
-    border: 1px solid var(--el-border-color-light);
-    transition: var(--el-transition-duration);
     padding: 15px;
     display: grid;
     grid-template-rows: auto 1fr;
     overflow: hidden;
 
-    @media (min-width: 1025px) {
-      border-radius: 8px;
-    }
-
     @media (max-width: 1024px) {
-      max-width: 100%;
-      border-radius: 0;
-      border: 0;
       padding-top: 10px;
     }
 
