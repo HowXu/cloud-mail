@@ -4,7 +4,6 @@
 
 <script setup>
 import { onMounted, onBeforeUnmount } from 'vue'
-import particles from 'particles.js'
 
 const props = defineProps({
   excludeRoutes: {
