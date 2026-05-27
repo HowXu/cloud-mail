@@ -353,7 +353,7 @@ const triggerRef = ref({
 })
 
 const queryParam = reactive({
-  size: 35
+  size: 25
 });
 
 defineExpose({

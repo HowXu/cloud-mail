@@ -37,8 +37,8 @@ const emailService = {
 		accountId = Number(accountId);
 		allReceive = Number(allReceive);
 
-		if (size > 35) {
-			size = 35;
+		if (size > 25) {
+			size = 25;
 		}
 
 		if (!emailId) {
@@ -808,8 +808,8 @@ const emailService = {
 		emailId = Number(emailId);
 		timeSort = Number(timeSort);
 
-		if (size > 35) {
-			size = 35;
+		if (size > 25) {
+			size = 25;
 		}
 
 		if (!emailId) {
