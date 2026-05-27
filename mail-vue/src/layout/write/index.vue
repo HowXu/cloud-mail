@@ -475,7 +475,17 @@ function openReply(email) {
   form.sendType = 'reply'
   form.emailId = email.emailId
 
-  defValue.value = ''
+  defValue.value = `
+    <div></div>
+    <div>
+    <br>
+        ${formatDetailDate(email.createTime)} ${email.name} &lt${email.sendEmail}&gt ${t('wrote')}:
+    </div>
+    <blockquote class="mceNonEditable" style="margin: 0 0 0 0.8ex;border-left: 1px solid rgb(204,204,204);padding-left: 1ex;">
+      <article>
+          ${formatImage(email.content) || `<pre style="font-family: inherit;word-break: break-word;white-space: pre-wrap;margin: 0">${email.text}</pre>`}
+      </article>
+    </blockquote>`
 
   setTimeout(() => {
     open()
