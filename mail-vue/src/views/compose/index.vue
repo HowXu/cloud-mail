@@ -119,6 +119,7 @@ import db from "@/db/db.js";
 import dayjs from "dayjs";
 import {useI18n} from "vue-i18n";
 import router from "@/router/index.js";
+import {useRoute} from "vue-router";
 import {ElMessageBox} from "element-plus";
 
 defineOptions({
@@ -126,6 +127,7 @@ defineOptions({
 })
 
 const {t} = useI18n()
+const route = useRoute()
 const writerStore = useWriterStore();
 const draftStore = userDraftStore()
 const settingStore = useSettingStore()
@@ -349,13 +351,8 @@ async function sendEmail() {
 
   sending = true
 
-  if (composeStore.isNewTab) {
-    window.close()
-    return
-  }
-
+  const isNewTab = composeStore.isNewTab
   const fromPath = composeStore.fromPath
-  composeStore.reset()
 
   const sendData = {...toRaw(form)}
   emailSend(sendData, (e) => {
@@ -382,6 +379,11 @@ async function sendEmail() {
     }
 
     resetForm();
+    composeStore.reset()
+    if (isNewTab) {
+      closeNewTab()
+      return
+    }
     const targetPath = fromPath === '/message' ? '/inbox' : fromPath
     router.push(targetPath)
   }).catch((e) => {
@@ -470,12 +472,21 @@ function syncToStore() {
 
 function openInNewTab() {
   syncToStore()
+  const fromPath = composeStore.fromPath
   const backupId = Date.now()
   sessionStorage.setItem(`compose_backup_${backupId}`, JSON.stringify(toRaw(form)))
-  const url = `/compose?from=tab&backupId=${backupId}`
-  window.open(url, '_blank')
+  const {href} = router.resolve({
+    name: 'compose',
+    query: {
+      from: 'tab',
+      backupId
+    }
+  })
+  const composeWindow = window.open(href, '_blank')
+  if (!composeWindow) return
+
   composeStore.reset()
-  router.push(composeStore.fromPath)
+  router.push(fromPath)
 }
 
 function loadFromBackup(backupId) {
@@ -513,7 +524,7 @@ const handleKeyDown = (event) => {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeyDown);
-  const query = router.currentRoute.value.query
+  const query = route.query
   if (query.from === 'tab' && query.backupId) {
     composeStore.setIsNewTab(true)
     loadFromBackup(query.backupId)
@@ -528,10 +539,26 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
 });
 
+function closeNewTab() {
+  window.close()
+  setTimeout(() => {
+    if (!window.closed) {
+      router.replace('/inbox')
+    }
+  }, 100)
+}
+
+function resetAndBack() {
+  const fromPath = composeStore.fromPath
+  composeStore.reset()
+  router.push(fromPath)
+}
+
 async function close() {
 
   if (composeStore.isNewTab) {
-    window.close()
+    composeStore.reset()
+    closeNewTab()
     return
   }
 
@@ -543,14 +570,12 @@ async function close() {
 
   if (form.draftId) {
     draftStore.setDraft = {...toRaw(form)}
-    composeStore.reset()
-    router.push(composeStore.fromPath)
+    resetAndBack()
     return
   }
 
   if (!(form.content || form.subject || form.receiveEmail.length > 0)) {
-    composeStore.reset()
-    router.push(composeStore.fromPath)
+    resetAndBack()
     return
   }
 
@@ -563,8 +588,7 @@ async function close() {
     }
     if (subjectFlag && contentFlag && receiveFlag) {
       resetForm();
-      composeStore.reset()
-      router.push(composeStore.fromPath)
+      resetAndBack()
       return;
     }
   }
@@ -582,12 +606,10 @@ async function close() {
     const draftId = await db.value.draft.add({...formData})
     db.value.att.add({draftId, attachments: toRaw(form.attachments)})
     draftStore.refreshList++
-    composeStore.reset()
-    router.push(composeStore.fromPath)
+    resetAndBack()
   }).catch((action) => {
     if (action === 'cancel') {
-      composeStore.reset()
-      router.push(composeStore.fromPath)
+      resetAndBack()
     }
   })
 

@@ -2,6 +2,7 @@ const zh = {
     inbox: '收件箱',
     drafts: '草稿箱',
     sent: '已发送',
+    compose: '写邮件',
     starred: '星标邮件',
     settings: '个人设置',
     analytics: '分析页',

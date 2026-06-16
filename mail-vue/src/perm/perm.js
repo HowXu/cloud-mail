@@ -39,6 +39,16 @@ export function permsToRouter(permKeys) {
 const routers = {
     'email:send': [
         {
+            path: '/compose',
+            name: 'compose',
+            component: () => import('@/views/compose/index.vue'),
+            meta: {
+                title: 'compose',
+                name: 'compose',
+                menu: false
+            }
+        },
+        {
             path: '/sent',
             name: 'send',
             component: () => import('@/views/send/index.vue'),

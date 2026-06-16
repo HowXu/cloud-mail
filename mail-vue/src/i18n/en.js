@@ -2,6 +2,7 @@ const en = {
     inbox: 'Inbox',
     drafts: 'Drafts',
     sent: 'Sent',
+    compose: 'Compose',
     starred: 'Starred',
     settings: 'Settings',
     analytics: 'Analytics',
