@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { onMounted, onBeforeUnmount } from 'vue'
+import { nextTick, onMounted, onBeforeUnmount } from 'vue'
 import 'particles.js'
 
 const props = defineProps({
@@ -12,6 +12,8 @@ const props = defineProps({
     default: () => ['login']
   }
 })
+
+const particlesId = 'particles-js'
 
 const currentRoute = () => {
   return window.location.pathname.replace('/', '') || 'inbox'
@@ -22,10 +24,18 @@ const shouldShow = () => {
   return !props.excludeRoutes.includes(route)
 }
 
-const initParticles = () => {
+const initParticles = async () => {
   if (!shouldShow()) return
+  await nextTick()
 
-  window.particlesJS('particles-js', {
+  if (!window.particlesJS) {
+    console.warn('particles.js is not available')
+    return
+  }
+
+  destroyParticles()
+
+  window.particlesJS(particlesId, {
     particles: {
       number: {
         value: 80,
@@ -86,7 +96,7 @@ const initParticles = () => {
       }
     },
     interactivity: {
-      detect_on: 'canvas',
+      detect_on: 'window',
       events: {
         onhover: {
           enable: true,
@@ -129,12 +139,14 @@ const initParticles = () => {
 }
 
 const destroyParticles = () => {
-  const container = document.getElementById('particles-js')
+  const container = document.getElementById(particlesId)
   if (container) {
     container.innerHTML = ''
   }
   if (window.pJSDom && window.pJSDom.length > 0) {
-    window.pJSDom[0].pJS.fn.vendors.destroypJS()
+    window.pJSDom.forEach(item => {
+      item?.pJS?.fn?.vendors?.destroypJS?.()
+    })
     window.pJSDom = []
   }
 }
@@ -155,9 +167,10 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
+  z-index: 2;
   pointer-events: none;
   background: transparent;
+  opacity: 0.35;
 }
 
 :deep(#particles-js canvas) {
@@ -166,6 +179,7 @@ onBeforeUnmount(() => {
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  z-index: 0 !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
 }
 </style>

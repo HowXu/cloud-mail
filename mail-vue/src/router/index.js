@@ -51,16 +51,6 @@ const routes = [
                     menu: true
                 }
             },
-            {
-                path: '/compose',
-                name: 'compose',
-                component: () => import('@/views/compose/index.vue'),
-                meta: {
-                    title: 'compose',
-                    name: 'compose',
-                    menu: false
-                }
-            },
         ]
 
     },
@@ -108,8 +98,8 @@ router.beforeEach((to, from, next) => {
         }, 100)
     }
 
-    if (to.name === 'compose') {
-        sessionStorage.setItem('compose_from', from.path || '/inbox')
+    if (to.name === 'compose' && from.name !== 'compose') {
+        sessionStorage.setItem('compose_from', from.fullPath || '/inbox')
     }
 
     const token = localStorage.getItem('token')

@@ -126,7 +126,7 @@
 <script setup>
 import {Icon} from "@iconify/vue";
 import {useTransition} from "@vueuse/core";
-import {defineOptions, onActivated, onDeactivated, onMounted, reactive, ref, watch, computed} from "vue";
+import {defineOptions, onActivated, onDeactivated, onMounted, onBeforeUnmount, reactive, ref, watch, computed} from "vue";
 import echarts from "@/echarts/index.js";
 import dayjs from "dayjs";
 import {analysisEcharts} from "@/request/analysis.js";
@@ -221,6 +221,7 @@ let analysisDark = uiStore.dark
 
 onMounted(() => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  window.addEventListener('resize', handleResize)
 
     analysisEcharts(timeZone).then(data => {
       receiveTotal.value = data.numberCount.receiveTotal
@@ -279,7 +280,7 @@ onActivated(() => {
   if (first) return
   if (window.innerWidth !== leaveWidth && leaveWidth !== 0) {
     widthChange()
-  } else if (!senderPie) {
+  } else if (!increaseLine || !emailColumn || !sendGauge) {
     widthChange()
   } else if (analysisDark !== uiStore.dark) {
     initPicture()
@@ -291,7 +292,11 @@ onDeactivated(() => {
   leaveWidth = window.innerWidth
 })
 
-window.onresize = () => {
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+const handleResize = () => {
   setStyle()
   widthChange()
 }
@@ -341,7 +346,11 @@ function createSenderPie() {
   if (senderPie) {
     senderPie.dispose()
   }
-  senderPie = echarts.init(document.querySelector(".sender-pie"))
+
+  const el = document.querySelector(".sender-pie")
+  if (!el) return
+
+  senderPie = echarts.init(el)
   let option = {
     tooltip: {
       trigger: 'item',
@@ -408,7 +417,10 @@ function createIncreaseLine() {
     increaseLine.dispose()
   }
 
-  increaseLine = echarts.init(document.querySelector(".increase-line"))
+  const el = document.querySelector(".increase-line")
+  if (!el) return
+
+  increaseLine = echarts.init(el)
 
   let option = {
     tooltip: {
@@ -565,7 +577,10 @@ function createEmailColumnChart() {
     emailColumn.dispose()
   }
 
-  emailColumn = echarts.init(document.querySelector(".email-column"));
+  const el = document.querySelector(".email-column")
+  if (!el) return
+
+  emailColumn = echarts.init(el);
 
   const option = {
     tooltip: {
@@ -673,7 +688,11 @@ function createSendGauge() {
   if (sendGauge) {
     sendGauge.dispose()
   }
-  sendGauge = echarts.init(document.querySelector(".send-count"));
+
+  const el = document.querySelector(".send-count")
+  if (!el) return
+
+  sendGauge = echarts.init(el);
   let option = {
     tooltip: {
       textStyle: {
