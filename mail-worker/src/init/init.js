@@ -35,14 +35,6 @@ const dbInit = {
 		return c.text('success');
 	},
 
-	async v3_1DB(c) {
-		try {
-			await c.env.db.prepare(`ALTER TABLE setting ADD COLUMN login_darken_factor INTEGER NOT NULL DEFAULT 0;`).run();
-		} catch (e) {
-			console.warn(`跳过字段：${e.message}`);
-		}
-	},
-
 	async v3_0DB(c) {
 		try {
 			await c.env.db.batch([
