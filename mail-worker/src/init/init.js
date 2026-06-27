@@ -29,7 +29,7 @@ const dbInit = {
 		await this.v2_8DB(c);
 		await this.v2_9DB(c);
 		await this.v3_0DB(c);
-		await this.v3_1DB(c);
+		// await this.v3_1DB(c);
 		await this.v3_2DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
