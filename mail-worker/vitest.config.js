@@ -1,11 +1,28 @@
-import { defineWorkersConfig } from '@cloudflare/vitest-pool-workers/config';
+import { defineConfig } from 'vitest/config';
+import { defineWorkersProject } from '@cloudflare/vitest-pool-workers/config';
 
-export default defineWorkersConfig({
+export default defineConfig({
 	test: {
-		poolOptions: {
-			workers: {
-				wrangler: { configPath: './wrangler.jsonc' },
+		workspace: [
+			{
+				test: {
+					name: 'node',
+					include: ['test/union-receive.spec.js'],
+					environment: 'node',
+					pool: 'forks'
+				}
 			},
-		},
+			defineWorkersProject({
+				test: {
+					name: 'workers',
+					include: ['test/index.spec.js'],
+					poolOptions: {
+						workers: {
+							wrangler: { configPath: './wrangler-dev.toml' },
+						},
+					},
+				},
+			})
+		]
 	},
 });

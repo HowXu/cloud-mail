@@ -18,8 +18,56 @@ import { t } from '../i18n/i18n'
 import reqUtils from '../utils/req-utils';
 import {oauth} from "../entity/oauth";
 import oauthService from "./oauth-service";
+import verifyUtils from '../utils/verify-utils';
 
 const userService = {
+
+	normalizeUnionReceive(c, unionReceive = []) {
+		if (!Array.isArray(unionReceive)) {
+			throw new BizError(t('notEmail'));
+		}
+
+		let domains = c.env.domain;
+		if (typeof domains === 'string') {
+			try {
+				domains = JSON.parse(domains);
+			} catch (e) {
+				throw new BizError(t('notJsonDomain'));
+			}
+		}
+
+		const domainSet = new Set(domains || []);
+		const seen = new Set();
+		const result = [];
+
+		for (const value of unionReceive) {
+			const email = String(value || '').trim();
+			if (!email) continue;
+			if (!verifyUtils.isEmail(email)) {
+				throw new BizError(t('notEmail'));
+			}
+			if (!domainSet.has(emailUtils.getDomain(email))) {
+				throw new BizError(t('notExistDomain'));
+			}
+
+			const key = email.toLowerCase();
+			if (!seen.has(key)) {
+				seen.add(key);
+				result.push(email);
+			}
+		}
+
+		return result;
+	},
+
+	parseUnionReceive(value) {
+		try {
+			const list = JSON.parse(value || '[]');
+			return Array.isArray(list) ? list : [];
+		} catch (e) {
+			return [];
+		}
+	},
 
 	async loginUserInfo(c, userId) {
 
@@ -41,6 +89,7 @@ const userService = {
 		user.email = userRow.email;
 		user.account = account;
 		user.name = account.name;
+		user.unionReceive = this.parseUnionReceive(userRow.unionReceive);
 		user.permKeys = permKeys;
 		user.role = roleRow;
 		user.type = userRow.type;
@@ -51,6 +100,11 @@ const userService = {
 		}
 
 		return user;
+	},
+
+	async setUnionReceive(c, params, userId) {
+		const unionReceive = this.normalizeUnionReceive(c, params.unionReceive);
+		await orm(c).update(user).set({ unionReceive: JSON.stringify(unionReceive) }).where(eq(user.userId, userId)).run();
 	},
 
 

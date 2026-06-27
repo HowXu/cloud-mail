@@ -12,3 +12,7 @@ export function userDelete() {
     return http.delete('/my/delete')
 }
 
+export function setUnionReceive(unionReceive) {
+    return http.put('/my/unionReceive', {unionReceive})
+}
+

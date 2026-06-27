@@ -24,8 +24,25 @@ import { att } from '../entity/att';
 import telegramService from './telegram-service';
 import storageService from './storage-service';
 import r2Service from './r2-service';
+import permService from './perm-service';
 
 const emailService = {
+
+	async unionReceiveEmails(c, userId) {
+		const userRow = await userService.selectById(c, userId);
+		if (!userRow) return [];
+		if (!userRow.unionReceive || userRow.unionReceive === '[]') return [];
+		const permKeys = userRow.email === c.env.admin ? ['*'] : await permService.userPermKeys(c, userId);
+		if (!permKeys.includes('*') && !permKeys.includes('email:union-receive')) return [];
+		return userService.parseUnionReceive(userRow.unionReceive);
+	},
+
+	receiveScope(userId, accountId, allReceive, unionReceiveEmails, type) {
+		const ownerScope = allReceive
+			? eq(email.userId, userId)
+			: and(eq(email.userId, userId), eq(email.accountId, accountId));
+		return Number(type) === emailConst.type.RECEIVE && unionReceiveEmails.length > 0 ? or(ownerScope, inArray(email.toEmail, unionReceiveEmails)) : ownerScope;
+	},
 
 	async list(c, params, userId) {
 
@@ -55,6 +72,8 @@ const emailService = {
 			let accountRow = await accountService.selectById(c, accountId);
 			allReceive = accountRow.allReceive;
 		}
+		const unionReceiveEmails = await this.unionReceiveEmails(c, userId);
+		const scope = this.receiveScope(userId, accountId, allReceive, unionReceiveEmails, type);
 
 		const query = orm(c)
 			.select({
@@ -74,8 +93,7 @@ const emailService = {
 			)
 			.where(
 				and(
-					allReceive ? eq(1,1) : eq(email.accountId, accountId),
-					eq(email.userId, userId),
+					scope,
 					timeSort ? gt(email.emailId, emailId) : lt(email.emailId, emailId),
 					eq(email.type, type),
 					eq(email.isDel, isDel.NORMAL),
@@ -98,21 +116,25 @@ const emailService = {
 			)
 			.where(
 				and(
-					allReceive ? eq(1,1) : eq(email.accountId, accountId),
-					eq(email.userId, userId),
+					scope,
 					eq(email.type, type),
 					eq(email.isDel, isDel.NORMAL),
 					eq(account.isDel, isDel.NORMAL)
 				)
 		).get();
 
-		const latestEmailQuery = orm(c).select().from(email).where(
-			and(
-				allReceive ? eq(1,1) : eq(email.accountId, accountId),
-				eq(email.userId, userId),
-				eq(email.type, type),
-				eq(email.isDel, isDel.NORMAL)
-			))
+		const latestEmailQuery = orm(c).select({...email}).from(email)
+			.leftJoin(
+				account,
+				eq(account.accountId, email.accountId)
+			)
+			.where(
+				and(
+					scope,
+					eq(email.type, type),
+					eq(email.isDel, isDel.NORMAL),
+					eq(account.isDel, isDel.NORMAL)
+				))
 			.orderBy(desc(email.emailId)).limit(1).get();
 
 		let [list, totalRow, latestEmail] = await Promise.all([listQuery, totalQuery, latestEmailQuery]);
@@ -146,19 +168,22 @@ const emailService = {
 		const { emailIds } = params;
 		const emailIdList = emailIds.split(',').map(Number);
 
-		const attList = await attService.selectByEmailIds(c, emailIdList);
-		if (attList.length > 0) {
-			const storageType = await r2Service.storageType(c);
-			if (storageType === 'R2' || storageType === 'S3') {
-				const keys = attList.map(att => att.key);
-				await attService.batchDelete(c, keys);
-			}
-		}
+		const unionReceiveEmails = await this.unionReceiveEmails(c, userId);
+		// owner-only by design: delete spans allReceive and accountId modes, so authorization cannot be restricted to a single account
+		const ownerScope = eq(email.userId, userId);
+		const deleteScope = unionReceiveEmails.length > 0
+			? or(ownerScope, inArray(email.toEmail, unionReceiveEmails))
+			: ownerScope;
+		const deleteRows = await orm(c).select({ emailId: email.emailId }).from(email).where(and(deleteScope, inArray(email.emailId, emailIdList))).all();
+		const deleteEmailIds = deleteRows.map(row => row.emailId);
+		if (deleteEmailIds.length === 0) return;
+
+		await attService.removeByEmailIds(c, deleteEmailIds);
 
 		await orm(c).update(email).set({ isDel: isDel.DELETE }).where(
 			and(
-				eq(email.userId, userId),
-				inArray(email.emailId, emailIdList)))
+				deleteScope,
+				inArray(email.emailId, deleteEmailIds)))
 			.run();
 	},
 
@@ -730,6 +755,8 @@ const emailService = {
 			let accountRow = await accountService.selectById(c, accountId);
 			allReceive = accountRow.allReceive;
 		}
+		const unionReceiveEmails = await this.unionReceiveEmails(c, userId);
+		const scope = this.receiveScope(userId, accountId, allReceive, unionReceiveEmails, emailConst.type.RECEIVE);
 
 		let list = await orm(c).select({...email}).from(email)
 			.leftJoin(
@@ -739,10 +766,9 @@ const emailService = {
 			.where(
 				and(
 					gt(email.emailId, emailId),
-					eq(email.userId, userId),
 					eq(email.isDel, isDel.NORMAL),
 					eq(account.isDel, isDel.NORMAL),
-					allReceive ? eq(1,1) : eq(email.accountId, accountId),
+					scope,
 					eq(email.type, emailConst.type.RECEIVE)
 				))
 			.orderBy(desc(email.emailId))

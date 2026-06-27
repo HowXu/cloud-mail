@@ -69,6 +69,7 @@ const en = {
 	perms: {
 		"邮件": "Emails",
 		"邮件发送": "Send Email",
+		"联合收件": "Union Receive",
 		"邮件删除": "Delete Email",
 		"邮箱侧栏": "Email Address",
 		"邮箱查看": "View Email",

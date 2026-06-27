@@ -114,11 +114,7 @@
           <div class="title">{{ $t('emailGrowth') }}</div>
           <div class="email-column"></div>
         </div>
-        <div class="picture-cs-item">
-          <div class="title">{{ $t('sentToday') }}</div>
-          <div class="send-count"></div>
-        </div>
-      </div>
+</div>
     </div>
   </el-scrollbar>
 </template>
@@ -208,12 +204,10 @@ const topic = computed(() => ({
   gaugeSplitLine: uiStore.dark ? '#CFD3DC' : '#606266',
   containerBackground: uiStore.dark ? '#6C6E72' : '#E6EBF8'
 }))
-let daySendTotal = 0
 let leaveWidth = 0
 let senderPie = null
 let increaseLine = null
 let emailColumn = null
-let sendGauge = null
 let first = true
 let boxKey = ref(0)
 let senderPieLeft = window.innerWidth < 500 ? `${window.innerWidth - 110}` : '72%'
@@ -256,7 +250,6 @@ onMounted(() => {
     emailColumnData.daysData = data.emailDayCount.receiveDayCount.map(item => dayjs(item.date).format("M.D"))
     emailColumnData.receiveData = data.emailDayCount.receiveDayCount.map(item => item.total)
     emailColumnData.sendData = data.emailDayCount.sendDayCount.map(item => item.total)
-    daySendTotal = data.daySendTotal
     analysisLoading.value = false
     initPicture();
     first = false
@@ -280,7 +273,7 @@ onActivated(() => {
   if (first) return
   if (window.innerWidth !== leaveWidth && leaveWidth !== 0) {
     widthChange()
-  } else if (!increaseLine || !emailColumn || !sendGauge) {
+  } else if (!increaseLine || !emailColumn) {
     widthChange()
   } else if (analysisDark !== uiStore.dark) {
     initPicture()
@@ -314,7 +307,6 @@ function initPicture() {
     createSenderPie()
     createIncreaseLine()
     createEmailColumnChart();
-    createSendGauge();
   })
 }
 
@@ -684,82 +676,6 @@ function createEmailColumnChart() {
   emailColumn.setOption(option);
 }
 
-function createSendGauge() {
-  if (sendGauge) {
-    sendGauge.dispose()
-  }
-
-  const el = document.querySelector(".send-count")
-  if (!el) return
-
-  sendGauge = echarts.init(el);
-  let option = {
-    tooltip: {
-      textStyle: {
-        color: topic.value.color
-      },
-      backgroundColor: topic.value.background
-    },
-    series: [{
-      name: t('sentToday'),
-      type: 'gauge',
-      max: 100,
-      // 进度条颜色（新增）
-      progress: {
-        show: true,
-        roundCap: true,
-        itemStyle: {
-          color: '#3CB2FF'
-        }
-      },
-      // 指针颜色（新增）
-      pointer: {
-        itemStyle: {
-          color: '#3CB2FF'
-        }
-      },
-      axisLabel: {
-        color: topic.value.gaugeSplitLine,
-      },
-      // 轴线背景色（新增）
-      axisLine: {
-        roundCap: true,
-        lineStyle: {
-          color: [[1, topic.value.containerBackground]]
-        }
-      },
-      splitLine: {
-        lineStyle: {
-          color: topic.value.gaugeSplitLine, // 大刻度线颜色
-        }
-      },
-      // 刻度颜色（新增）
-      axisTick: {
-        lineStyle: {
-          color: topic.value.axisColor
-        }
-      },
-      // 中心文字颜色（新增）
-      detail: {
-        valueAnimation: true,
-        formatter: '{value}',
-        color: topic.value.color // 黑色文字
-      },
-      data: [{
-        value: daySendTotal,
-        name: t('total'),
-        // 名称标签颜色（新增）
-        title: {
-          color: topic.value.color  // 灰色标签
-        }
-      }]
-    }],
-    color: ['#3CB2FF']
-  };
-  sendGauge.setOption(option);
-}
-
-
 </script>
 <style>
 .percentage-value {
@@ -945,13 +861,6 @@ function createSendGauge() {
       background: var(--el-bg-color);
       border-radius: 8px;
       border: 1px solid var(--el-border-color);
-
-      .send-count {
-        height: 350px;
-        @media (max-width: 767px) {
-          height: 320px;
-        }
-      }
 
       .email-column {
         height: 350px;

@@ -23,6 +23,18 @@
         <div>{{$t('emailAccount')}}</div>
         <div>{{ userStore.user.email }}</div>
       </div>
+      <div class="item union-receive" v-if="hasPerm('email:union-receive')">
+        <div>{{$t('unionReceive')}}</div>
+        <div>
+          <el-input-tag
+              v-model="unionReceive"
+              tag-type="success"
+              :placeholder="$t('unionReceivePlaceholder')"
+          />
+          <div class="desc">{{$t('unionReceiveDesc')}}</div>
+          <el-button size="small" type="primary" :loading="unionReceiveLoading" @click="submitUnionReceive">{{$t('save')}}</el-button>
+        </div>
+      </div>
       <div class="item">
         <div>{{$t('password')}}</div>
         <div>
@@ -62,7 +74,8 @@
 </template>
 <script setup>
 import {reactive, ref, defineOptions} from 'vue'
-import {resetPassword, userDelete} from "@/request/my.js";
+import {resetPassword, setUnionReceive, userDelete} from "@/request/my.js";
+import {hasPerm} from "@/perm/perm.js";
 import {useUserStore} from "@/store/user.js";
 import router from "@/router/index.js";
 import {accountSetName} from "@/request/account.js";
@@ -78,6 +91,8 @@ const setPwdLoading = ref(false)
 const setNameShow = ref(false)
 const accountName = ref(null)
 const langSelect = ref(settingStore.lang)
+const unionReceive = ref([...(userStore.user.unionReceive || [])])
+const unionReceiveLoading = ref(false)
 
 defineOptions({
   name: 'setting'
@@ -157,6 +172,20 @@ const deleteConfirm = () => {
   })
 }
 
+
+function submitUnionReceive() {
+  unionReceiveLoading.value = true
+  setUnionReceive(unionReceive.value).then(() => {
+    userStore.user.unionReceive = [...unionReceive.value]
+    ElMessage({
+      message: t('saveSuccessMsg'),
+      type: 'success',
+      plain: true,
+    })
+  }).finally(() => {
+    unionReceiveLoading.value = false
+  })
+}
 
 function submitPwd() {
 
@@ -271,6 +300,21 @@ function submitPwd() {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+      }
+
+      &.union-receive {
+        div:last-child {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: flex-start;
+          white-space: normal;
+        }
+
+        .desc {
+          color: var(--regular-text-color);
+          font-size: 12px;
+        }
       }
     }
   }

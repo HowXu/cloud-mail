@@ -31,8 +31,27 @@ const dbInit = {
 		await this.v3_0DB(c);
 		await this.v3_1DB(c);
 		await this.v3_2DB(c);
+		await this.v3_3DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	async v3_3DB(c) {
+		try {
+			await c.env.db.prepare(`ALTER TABLE user ADD COLUMN union_receive TEXT NOT NULL DEFAULT '[]';`).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
+
+		try {
+			await c.env.db.prepare(`
+				INSERT INTO perm (name, perm_key, pid, type, sort)
+				SELECT '联合收件', 'email:union-receive', 1, 2, 3
+				WHERE NOT EXISTS (SELECT 1 FROM perm WHERE perm_key = 'email:union-receive')
+			`).run();
+		} catch (e) {
+			console.warn(`跳过数据：${e.message}`);
+		}
 	},
 
 	async v3_0DB(c) {
